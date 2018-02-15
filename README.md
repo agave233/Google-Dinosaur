@@ -1,21 +1,21 @@
 # Google-Dinosaur
-- ###Running show
+- ### Running show
 
   ![sprite4.png](https://github.com/agave233/233/blob/master/sprite4.png?raw=true)
 
-- ###Requirements
+- ### Requirements
 
-  - ######python 2.7
-  - ######pygame 3.6.1
+  - ###### python 2.7
+  - ###### pygame 3.6.1
 
-- ###update log
+- ### update log
 
-  - ######v1.1(2018.2.5)
+  - ###### v1.1(2018.2.5)
 
     * basic functions and running fsm
     * count score
     * random block generated 
-  - ######v1.2(2018.2.15)
+  - ###### v1.2(2018.2.15)
 
     - add dynamic clouds to the map
     - update the beginning interface and ending interface
