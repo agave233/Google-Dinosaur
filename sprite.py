@@ -237,6 +237,10 @@ while True:
             f.write(str(best_score_temp))
             f.close()
 
+    #show cloud
+    cloud_update(move_speed)
+    for index in range(cloud_number):
+        screen.blit(cloud, (cloud_start[index], cloud_height[index]))
 
     #FSM under the control of player
     if action == 0:
@@ -271,10 +275,6 @@ while True:
     #show every block
     for index in range(block_number):
         screen.blit(block[block_type[index]], (block_start[index], 356 - 16 * block_type[index] / 3))
-    #show cloud
-    cloud_update(move_speed)
-    for index in range(cloud_number):
-        screen.blit(cloud, (cloud_start[index], cloud_height[index]))
     #display background
     screen.blit(floor_part1,(0,400))
     screen.blit(floor_part2, (floor_len1, 400))
