@@ -81,7 +81,25 @@ def block_update(move_speed):
         block_number += 1
         now_dist = 0
 
-# def cloud_update():
+def cloud_update(move_speed):
+    global cloud,cloud_start,cloud_last,cloud_now,cloud_number
+    cloud_dist = [400, 600, 800]
+    #update position of each block
+    cloud_start = [start - move_speed for start in cloud_start]
+    #check if disappear
+    if cloud_number:
+        if cloud_start[0] + cloud.get_rect().width < 0:
+            cloud_number -= 1
+            del cloud_start[0]
+            del cloud_height[0]
+    if cloud_now < cloud_last:
+        cloud_now += move_speed
+    else:
+        cloud_height.append(random.randint(100,250))
+        cloud_last = cloud_dist[random.randint(0,2)]
+        cloud_start.append(800)
+        cloud_number += 1
+        cloud_now = 0
 
 
 
@@ -89,13 +107,19 @@ pygame.init()
 
 screen = pygame.display.set_mode((800, 600), 0, 32)
 sprite = pygame.image.load("resource/sprite.png").convert_alpha()
+f = open("score.txt", "r")
+best_score = f.read()
+f.close()
+pygame.display.set_caption("Google Dinosaur")
 clock = pygame.time.Clock()
 
 #get basic png
-sprite_std,sprite_down,block,bird,floor,dead,restart = element.get(sprite)
+sprite_std,sprite_down,block,bird,floor,dead,restart,cloud = element.get(sprite)
+
 
 #all vars of game
 score = 0
+best_score_temp = int(best_score)
 speed = 60
 move_speed = 8
 action = -1
@@ -115,6 +139,12 @@ block_number = 0
 last_dist = 1000
 now_dist = 0
 
+cloud_start = []
+cloud_height = []
+cloud_number = 0
+cloud_last = 0
+cloud_now = 0
+
 floor_start = 0
 floor_len1 = 800
 floor_len2 = 0
@@ -125,7 +155,12 @@ time_record = 0
 key_up_pressed = False
 
 font = pygame.font.SysFont("rial", 40)
-text = font.render("Can't connect the internet", True, (0, 0, 0))
+text1 = font.render("Unconnected to the Internet", True, (96, 96, 96))
+game_over =  font.render("Game Over!", True, (96, 96, 96))
+font = pygame.font.SysFont("rial", 30)
+text2 = font.render("Please try the following method", True, (96, 96, 96))
+text3 = font.render("   *Reconnect to the WiFi network", True, (96, 96, 96))
+text4 = font.render("   *Check network lines, modem, and routers", True, (96, 96, 96))
 
 while True:
 
@@ -139,10 +174,12 @@ while True:
                     action = 1
                 if event.key == K_ESCAPE:
                     exit()
-            print event
         screen.fill((255,255,255))
-        screen.blit(sprite_std[0],(20,330))
-        screen.blit(text, (300, 200))
+        screen.blit(sprite_std[0],(100,250))
+        screen.blit(text1, (300, 200))
+        screen.blit(text2, (300, 250))
+        screen.blit(text3, (300, 300))
+        screen.blit(text4, (300, 350))
         pygame.display.update()
         continue
 
@@ -152,7 +189,6 @@ while True:
             exit()
         if action == 3 and event.type == KEYDOWN:
             if event.key == K_SPACE:
-                print event.key
                 action = 1
                 speed = 60
                 move_speed = 8
@@ -193,9 +229,14 @@ while True:
             sprite_rect = pygame.Rect(20, sprite_up_pos, 120, 66)
         block_rect = pygame.Rect(block_start[index], 356 - 16 * block_type[index] / 3, block[block_type[index]].get_width(),block[block_type[index]].get_height())
         if sprite_rect.colliderect(block_rect) == True:
+            best_score = best_score_temp
             move_speed = 0
             speed = 0
             action = 3
+            f = open("score.txt", "w")
+            f.write(str(best_score_temp))
+            f.close()
+
 
     #FSM under the control of player
     if action == 0:
@@ -216,14 +257,24 @@ while True:
                 sprite_up_step = 18
     if action == 3:
         screen.blit(dead, (18, sprite_up_pos - 5))
-        screen.blit(restart,(400,200))
+        screen.blit(game_over,(380,250))
+        screen.blit(restart,(400,300))
     if action != 3:
         score += 1
-    screen.blit(font.render(str(score / 10), True, (0, 0, 0)),(750,20))
+
+    #show score
+    if best_score_temp < score / 10:
+        best_score_temp = score / 10
+    screen.blit(font.render("HIGH  " + str(int(best_score)), True, (96, 96, 96)), (600, 20))
+    screen.blit(font.render(str(score / 10), True, (96, 96, 96)),(750,20))
     #screen.blit(bird[bird_frame], (0, 200))
     #show every block
     for index in range(block_number):
         screen.blit(block[block_type[index]], (block_start[index], 356 - 16 * block_type[index] / 3))
+    #show cloud
+    cloud_update(move_speed)
+    for index in range(cloud_number):
+        screen.blit(cloud, (cloud_start[index], cloud_height[index]))
     #display background
     screen.blit(floor_part1,(0,400))
     screen.blit(floor_part2, (floor_len1, 400))
